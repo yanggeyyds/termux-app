@@ -1,9 +1,6 @@
 name: Release Build
 
 on:
-  push:
-    branches:
-      - master
   workflow_dispatch:
 
 jobs:
@@ -23,12 +20,12 @@ jobs:
           sed -i '/release {/a\            signingConfig signingConfigs.debug' app/build.gradle
           CURRENT_VERSION=$(grep -m 1 versionName app/build.gradle | grep -o '"[^"]*"' | tr -d '"')
           SHORT_SHA=$(git rev-parse --short=7 HEAD)
-          VERSION="v${CURRENT_VERSION}+${SHORT_SHA}"
+          VERSION="vd{CURRENT_VERSION}+${SHORT_SHA}"
           export TERMUX_APP_VERSION_NAME="${VERSION/v/}"
           export TERMUX_APK_VERSION_TAG="${VERSION}-apt-android-7-github-release"
           export TERMUX_PACKAGE_VARIANT="apt-android-7"
           export TERMUX_SPLIT_APKS_FOR_RELEASE_BUILDS="1"
-          echo "APK_TAG=${TERMUX_APK_VERSION_TAG}" >> $GITHUB_ENV
+          echo "APD_TAG=${TERMUX_APK_VERSION_TAG}" >> $GITHUB_ENV
           ./gradlew downloadBootstraps assembleRelease
 
       - name: Upload APK
