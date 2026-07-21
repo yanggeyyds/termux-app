@@ -150,7 +150,8 @@ task versionName {
 }
 
 def validateVersionName(String versionName) {
-    if (!java.util.regex.Pattern.matches("^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*)\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*)\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+))*)?$", versionName))
+    // https://semver.org/spec/v2.0.0.html
+    if (!java.util.regex.Pattern.matches("^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$", versionName))
         throw new GradleException("The versionName '"  + versionName + "' is not a valid version as per semantic version '2.0.0' spec.")
 }
 
@@ -161,8 +162,7 @@ def getLatestBootstrapVersion() {
     conn.setRequestProperty("Accept", "application/vnd.github+json")
     conn.setInstanceFollowRedirects(true)
     def text = conn.getInputStream().text
-    // Find tag matching bootstrap-YYYY.MM.DD-rq+apt.android-7
-    def matcher = text =~ /"tag_name"\s*\s*"bootstrap-([^"]+apt\.android-7)/
+    def matcher = text =~ /"tag_name"\s*:\s*"bootstrap-([^"]+apt\.android-7)"/
     if (matcher.find()) {
         def version = matcher.group(1)
         logger.quiet("Found latest bootstrap version: " + version)
@@ -175,18 +175,18 @@ def downloadBootstrap(String arch, String version) {
     def encodedVersion = version.replace("+", "%2B")
     def localUrl = "src/main/cpp/bootstrap-" + arch + ".zip"
     def file = new File(projectDir, localUrl)
-
+    if (file.exists()) {
+        logger.quiet("Bootstrap " + localUrl + " already exists, skipping download")
+        return
+    }
     def remoteUrl = "https://github.com/termux/termux-packages/releases/download/bootstrap-" + encodedVersion + "/bootstrap-" + arch + ".zip"
     logger.quiet("Downloading " + remoteUrl + " ...")
-
     file.parentFile.mkdirs()
     def out = new BufferedOutputStream(new FileOutputStream(file))
     def connection = new URL(remoteUrl).openConnection()
     connection.setInstanceFollowRedirects(true)
     out << connection.inputStream
     out.close()
-
-    // Verify SHA256
     def digest = java.security.MessageDigest.getInstance("SHA-256")
     def input = new FileInputStream(file)
     def buffer = new byte[8192]
