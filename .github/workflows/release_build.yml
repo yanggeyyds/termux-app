@@ -25,7 +25,7 @@ jobs:
           export TERMUX_APK_VERSION_TAG="${VERSION}-apt-android-7-github-release"
           export TERMUX_PACKAGE_VARIANT="apt-android-7"
           export TERMUX_SPLIT_APKS_FOR_RELEASE_BUILDS="1"
-          echo "APD_TAG=${TERMUX_APK_VERSION_TAG}" >> $GITHUB_ENV
+          echo "APK_TAG=${TERMUX_APK_VERSION_TAG}" >> $GITHUB_ENV
           ./gradlew downloadBootstraps assembleRelease
 
       - name: Upload APK
