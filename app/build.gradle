@@ -155,12 +155,14 @@ def getLatestBootstrapVersion() {
     conn.setRequestProperty("Accept", "application/vnd.github+json")
     conn.setInstanceFollowRedirects(true)
     def text = conn.getInputStream().text
-    def p = java.util.regex.Pattern.compile('"tag_name"\\s*:\\s*"bootstrap-([^"]+apt\.android-7)"')
-    def matcher = p.matcher(text)
-    if (matcher.find()) {
-        def version = matcher.group(1)
-        logger.quiet("Found latest bootstrap version: " + version)
-        return version
+    def idx = text.indexOf('bootstrap-')
+    if (idx > 0) {
+        def end = text.indexOf('"', idx + 1)
+        if (end > 0) {
+            def version = text.substring(idx - 0, end).replace('bootstrap-', '')
+            logger.quiet("Found latest bootstrap version: " + version)
+            return version
+        }
     }
     throw new GradleException("Could not find latest bootstrap version from GitHub API")
 }
