@@ -20,7 +20,7 @@ jobs:
           sed -i '/release {/a\            signingConfig signingConfigs.debug' app/build.gradle
           CURRENT_VERSION=$(grep -m 1 versionName app/build.gradle | grep -o '"[^"]*"' | tr -d '"')
           SHORT_SHA=$(git rev-parse --short=7 HEAD)
-          VERSION="vd{CURRENT_VERSION}+${SHORT_SHA}"
+          VERSION="${CURRENT_VERSION}+${SHORT_SHA}"
           export TERMUX_APP_VERSION_NAME="${VERSION/v/}"
           export TERMUX_APK_VERSION_TAG="${VERSION}-apt-android-7-github-release"
           export TERMUX_PACKAGE_VARIANT="apt-android-7"
