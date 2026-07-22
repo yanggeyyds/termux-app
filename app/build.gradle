@@ -155,7 +155,8 @@ def getLatestBootstrapVersion() {
     conn.setRequestProperty("Accept", "application/vnd.github+json")
     conn.setInstanceFollowRedirects(true)
     def text = conn.getInputStream().text
-    def matcher = text =~ /"tag_name"+\s*:\s+"bootstrap-([^"]+apt\.android-7)"/
+    def p = java.util.regex.Pattern.compile('"tag_name"\\s*:\\s*"bootstrap-([^"]+apt\.android-7)"')
+    def matcher = p.matcher(text)
     if (matcher.find()) {
         def version = matcher.group(1)
         logger.quiet("Found latest bootstrap version: " + version)
